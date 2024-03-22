@@ -1,2 +1,2 @@
 # Social-Media-Clone-Back-end
-Back end work on the social media clone that I am working on / learning
+This needs to be added as a submodule to the front end and make them work like that.
