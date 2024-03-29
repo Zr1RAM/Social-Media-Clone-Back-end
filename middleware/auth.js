@@ -24,6 +24,24 @@ const authenticateJWT = (req, res, next) => {
 const authorizeUser = async (req, res, next) => {
     const requestedImageName = req.url.substring(1);
     const requesterID = req.userInfo.id;
+    console.log("profileID: " + req.query.profileId);
+    if(requesterID == req.query.profileId) {
+        return next();
+    }
+
+    const getFollowedUserQuery = `
+            SELECT ( p.user_id = ${requesterID} ) :: INTEGER AS true_condition
+            FROM   social.posts AS p
+            WHERE  p.img = '${requestedImageName}'
+            UNION ALL
+            SELECT r.follower_user_id
+            FROM   social.relationships r
+                    join social.posts p
+                    ON r.followed_user_id = p.user_id
+            WHERE  p.img = '${requestedImageName}'
+                    AND r.follower_user_id = ${requesterID};
+        `;
+
     //console.log(requesterID);
     const onQuerySuccess = (result) => {
         switch(result.rowCount) {
@@ -58,19 +76,6 @@ const authorizeUser = async (req, res, next) => {
     const onQueryFailed = (error) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ "msg": "sum ting wong", error });
     }
-
-    const getFollowedUserQuery = `
-            SELECT ( p.user_id = ${requesterID} ) :: INTEGER AS true_condition
-            FROM   social.posts AS p
-            WHERE  p.img = '${requestedImageName}'
-            UNION ALL
-            SELECT r.follower_user_id
-            FROM   social.relationships r
-                    join social.posts p
-                    ON r.followed_user_id = p.user_id
-            WHERE  p.img = '${requestedImageName}'
-                    AND r.follower_user_id = ${requesterID};
-        `;
 
     queryHandler(getFollowedUserQuery, onQuerySuccess, onQueryFailed);   
     

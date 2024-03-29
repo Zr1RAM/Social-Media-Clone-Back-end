@@ -104,4 +104,25 @@ const getUser = async (req, res) => {
     );
 };
 
-module.exports = { getUser };
+const updateUser = async (req, res) => {
+    console.log(req.body);
+    const updateUserQuery = `
+    UPDATE social.user_details
+    SET    NAME = '${req.body.name}',
+           city = '${req.body.city}',
+           website = '${req.body.website}',
+           profile_pic = '${req.body.profilePic}',
+           cover_pic = '${req.body.coverPic}'
+    WHERE  user_details_id = ${req.userInfo.id}; 
+    `;
+    queryHandler(updateUserQuery, 
+        (result) => {
+            return res.status(StatusCodes.OK).json(result);
+        },
+        (error) => {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ "msg": "sum ting wong", error });
+        }
+    );
+};
+
+module.exports = { getUser, updateUser };

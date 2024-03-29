@@ -126,4 +126,19 @@ const handleSingleFileUpload = (req, res) => {
     res.status(StatusCodes.OK).json(file.filename);
 }
 
-module.exports = { getPosts, addPost, handleSingleFileUpload, getPostAt };
+const deletePost = async (req, res) => {
+
+  const deletePostQuery = `
+    DELETE FROM social.posts WHERE id = ${req.params.id} AND user_id = ${req.userInfo.id}
+  `;
+  queryHandler(deletePostQuery,
+    (result) => {
+      return res.status(StatusCodes.OK).json("Post successfully deleted");
+    },
+    (error) => {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ "msg": "sum ting wong", error })
+    }
+  );
+};
+
+module.exports = { getPosts, addPost, handleSingleFileUpload, getPostAt, deletePost };
